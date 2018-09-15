@@ -1,12 +1,20 @@
 'use strict'
 
-const queryOverpass = require('@derhuerst/query-overpass')
-const berlin = require('german-states-bbox').BE
 const Flatbush = require('flatbush')
+const merged = require('merged-vbb-stations')
 const computeDistance = require('gps-distance')
+const berlin = require('german-states-bbox').BE
+const queryOverpass = require('@derhuerst/query-overpass')
+const {writeFileSync} = require('fs')
+const {join} = require('path')
 
 let stations = require('vbb-stations/full.json')
-stations = Object.values(stations)
+stations = Object.values(stations).filter((s) => {
+	// filter child stations
+	const shouldMerge = s.id !== merged[s.id]
+	if (shouldMerge) console.warn('ignoring', s.id, s.name)
+	return !shouldMerge
+})
 
 const index = new Flatbush(stations.length);
 for (const s of stations) {
@@ -38,40 +46,44 @@ const bbox = [
 	berlin.maxLon // east
 ]
 
-const res = Object.create(null) // rack ID -> station ID
-
-// todo: parking racks with unknown capacity
 queryOverpass(`
 [out:json][timeout:60][bbox:${bbox.join(',')}];
-node
-	[amenity=bicycle_parking]
-	[capacity];
+node[amenity=bicycle_parking];
 out body;
 `)
 .then((parkingRacks) => {
+	const simple = [] // rack ID, rack capacity station ID
+	const full = [] // rack ID, rack tags, station ID
+
 	for (let rack of parkingRacks) {
-		const capacity = parseInt(rack.tags.capacity)
-		if (Number.isNaN(capacity)) {
-			console.warn(rack.id, 'has an invalid capacity')
-			continue
+		let capacity = null
+		if ('capacity' in rack.tags) {
+			rack.tags.capacity = parseInt(rack.tags.capacity)
+			if (Number.isNaN(rack.tags.capacity)) {
+				console.warn(rack.id + '', 'has an invalid capacity')
+				continue
+			}
 		}
 
 		const close = nearby(rack.lat, rack.lon, .5)
 		if (close.length === 0) {
-			console.warn(rack.id, 'has no stations within .5km')
+			console.warn(rack.id + '', 'has no stations within .5km')
 			continue
 		}
-
 		const closest = close[0]
 		const secondClosest = close[1]
 		if (secondClosest && closest.distance / secondClosest.distance > .7) {
-			console.warn(rack.id, 'two very similarly close stations')
+			console.warn(rack.id + '', 'has two very similarly close stations')
 			continue
 		}
 
-		res[rack.id] = closest.id
+		simple.push([rack.id, rack.tags.capacity, closest.id])
+		full.push([rack.id, rack.tags, closest.id])
 	}
 
-	process.stdout.write(JSON.stringify(res) + '\n')
+	console.info('writing index.json')
+	writeFileSync(join(__dirname, 'index.json'), JSON.stringify(simple))
+	console.info('writing full.json')
+	writeFileSync(join(__dirname, 'full.json'), JSON.stringify(full))
 })
 .catch(console.error)
