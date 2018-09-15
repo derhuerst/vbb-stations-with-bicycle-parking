@@ -1,0 +1,38 @@
+{
+	"name": "vbb-stations-with-bicycle-parking",
+	"description": "VBB stations with nearby bicycle parking facilities.",
+	"version": "1.0.0",
+	"main": "index.js",
+	"files": [
+		"index.json",
+		"full.json",
+		"example.js"
+	],
+	"keywords": [
+		"vbb",
+		"bvg",
+		"stations",
+		"bicycle",
+		"parking",
+		"cycling"
+	],
+	"author": "Jannis R <mail@jannisr.de>",
+	"homepage": "https://github.com/derhuerst/todo-name",
+	"repository": "derhuerst/todo-name",
+	"bugs": "https://github.com/derhuerst/todo-name/issues",
+	"license": "ISC",
+	"engines": {
+		"node": ">=8"
+	},
+	"dependencies": {
+	},
+	"devDependencies": {
+		"tap-min": "^1.2.2",
+		"tape": "^4.9.1"
+	},
+	"scripts": {
+		"build": "node build.js",
+		"test": "env NODE_ENV=dev node test.js | tap-min",
+		"prepublishOnly": "npm run build && npm test"
+	}
+}
