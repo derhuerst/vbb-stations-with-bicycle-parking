@@ -2,7 +2,7 @@
 	"name": "vbb-stations-with-bicycle-parking",
 	"description": "VBB stations with nearby bicycle parking facilities.",
 	"version": "1.0.0",
-	"main": "index.js",
+	"main": "index.json",
 	"files": [
 		"index.json",
 		"full.json",
