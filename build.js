@@ -52,8 +52,10 @@ node[amenity=bicycle_parking];
 out body;
 `)
 .then((parkingRacks) => {
-	const simple = [] // rack ID, rack capacity station ID
-	const full = [] // rack ID, rack tags, station ID
+	// station ID -> [[rack ID, rack capacity], ...]
+	const simple = Object.create(null)
+	// station ID -> [[rack ID, rack tags], ...]
+	const full = Object.create(null)
 
 	for (let rack of parkingRacks) {
 		let capacity = null
@@ -77,8 +79,11 @@ out body;
 			continue
 		}
 
-		simple.push([rack.id, rack.tags.capacity, closest.id])
-		full.push([rack.id, rack.tags, closest.id])
+		const sId = closest.id
+		if (simple[sId]) simple[sId].push([rack.id, rack.tags.capacity])
+		else simple[sId] = [[rack.id, rack.tags.capacity]]
+		if (full[sId]) full[sId].push([rack.id, rack.tags])
+		else full[sId] = [[rack.id, rack.tags]]
 	}
 
 	console.info('writing index.json')

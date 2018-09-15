@@ -1,6 +1,6 @@
 # vbb-stations-with-bicycle-parking
 
-**VBB stations with nearby bicycle parking facilities.**
+**VBB stations with nearby bicycle parking facilities.** Taken from [OSM](https://www.openstreetmap.org/).
 
 [![npm version](https://img.shields.io/npm/v/vbb-stations-with-bicycle-parking.svg)](https://www.npmjs.com/package/vbb-stations-with-bicycle-parking)
 [![build status](https://api.travis-ci.org/derhuerst/vbb-stations-with-bicycle-parking.svg?branch=master)](https://travis-ci.org/derhuerst/vbb-stations-with-bicycle-parking)
@@ -19,7 +19,23 @@ npm install vbb-stations-with-bicycle-parking
 ## Usage
 
 ```js
-todo
+const bikeRacks = require('vbb-stations-with-bicycle-parking/index.json')
+
+const atFriedrichstr = bikeRacks['900000100001']
+for (let [osmId, capacity] of atFriedrichstr) {
+	console.log(osmId, capacity)
+}
+```
+
+To get all OSM tags:
+
+```js
+const bikeRacksFull = require('vbb-stations-with-bicycle-parking/full.json')
+
+const atFriedrichstr = bikeRacksFull['900000100001']
+for (let [osmId, tags] of atFriedrichstr) {
+	console.log(osmId, tags)
+}
 ```
 
 
