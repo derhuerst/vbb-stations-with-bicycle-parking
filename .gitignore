@@ -7,3 +7,5 @@ pnpm-debug.log
 
 /package-lock.json
 /shrinkwrap.yaml
+
+/index.json

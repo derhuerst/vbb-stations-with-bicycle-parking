@@ -38,6 +38,8 @@ const bbox = [
 	berlin.maxLon // east
 ]
 
+const res = Object.create(null) // rack ID -> station ID
+
 // todo: parking racks with unknown capacity
 queryOverpass(`
 [out:json][timeout:60][bbox:${bbox.join(',')}];
@@ -55,8 +57,21 @@ out body;
 		}
 
 		const close = nearby(rack.lat, rack.lon, .5)
-		// todo
-		break
+		if (close.length === 0) {
+			console.warn(rack.id, 'has no stations within .5km')
+			continue
+		}
+
+		const closest = close[0]
+		const secondClosest = close[1]
+		if (secondClosest && closest.distance / secondClosest.distance > .7) {
+			console.warn(rack.id, 'two very similarly close stations')
+			continue
+		}
+
+		res[rack.id] = closest.id
 	}
+
+	process.stdout.write(JSON.stringify(res) + '\n')
 })
 .catch(console.error)
