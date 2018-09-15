@@ -27,6 +27,11 @@
 	"dependencies": {
 	},
 	"devDependencies": {
+		"@derhuerst/query-overpass": "^1.0.0",
+		"flatbush": "^3.0.0",
+		"gps-distance": "0.0.4",
+		"vbb-stations": "^6.7.0",
+		"german-states-bbox": "^1.1.0",
 		"tap-min": "^1.2.2",
 		"tape": "^4.9.1"
 	},
